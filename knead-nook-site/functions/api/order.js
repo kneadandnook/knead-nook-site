@@ -19,42 +19,79 @@ export async function onRequestPost(context) {
     const items = Array.isArray(payload.items) ? payload.items : [];
 
     const itemLines = items.length
-      ? items.map((item, index) => {
-          return [
-            `Item ${index + 1}:`,
-            `  Category: ${item.category || ""}`,
-            `  Item: ${item.item || ""}`,
-            `  Size: ${item.size || ""}`,
-            `  Quantity: ${item.quantity || ""}`,
-            `  Unit Price: ${item.unitPrice || ""}`,
-            `  Line Total: ${item.lineTotal || ""}`
-          ].join("\\n");
-        }).join("\\n\\n")
+      ? items
+          .map((item, index) => {
+            return [
+              `Item ${index + 1}:`,
+              `Category: ${item.category || ""}`,
+              `Item: ${item.item || ""}`,
+              `Size: ${item.size || ""}`,
+              `Quantity: ${item.quantity || ""}`,
+              `Unit Price: ${item.unitPrice || ""}`,
+              `Line Total: ${item.lineTotal || ""}`
+            ].join("\n");
+          })
+          .join("\n\n--------------------\n\n")
       : "No cart items received.";
 
-    console.log("NEW ORDER SUBMITTED");
-    console.log({
-      name,
-      email,
-      phone,
-      occasion,
-      fulfillmentMethod,
-      requestedDate,
-      requestedTime,
-      address,
-      city,
-      state,
-      zip,
-      specialWishes,
-      allergenNotes,
-      estimatedTotal,
-      items
+    const resendResponse = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${context.env.RESEND_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from: "Knead & Nook <onboarding@resend.dev>",
+        to: ["kneadandnook@kneadandnook.com"],
+        reply_to: email,
+        subject: `New Order from ${name || "Website Customer"}`,
+        text: `
+Name: ${name}
+Email: ${email}
+Phone: ${phone}
+Occasion: ${occasion}
+Fulfillment Method: ${fulfillmentMethod}
+Requested Date: ${requestedDate}
+Requested Time: ${requestedTime}
+
+Delivery Address:
+${address}
+${city}, ${state} ${zip}
+
+Special Wishes:
+${specialWishes}
+
+Allergen Notes:
+${allergenNotes}
+
+Estimated Total:
+${estimatedTotal}
+
+Items:
+${itemLines}
+        `.trim()
+      })
     });
+
+    const resendData = await resendResponse.json();
+
+    if (!resendResponse.ok) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: resendData.message || resendData.error || "Email failed to send."
+        }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" }
+        }
+      );
+    }
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: "Order received successfully."
+        message: "Order sent successfully."
       }),
       {
         headers: { "Content-Type": "application/json" }

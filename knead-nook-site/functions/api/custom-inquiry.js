@@ -11,22 +11,53 @@ export async function onRequestPost(context) {
     const inquiryDetails = payload.inquiryDetails || "";
     const inquiryNotes = payload.inquiryNotes || "";
 
-    console.log("CUSTOM ORDER INQUIRY");
-    console.log({
-      inquiryName,
-      inquiryEmail,
-      inquiryPhone,
-      inquiryEventType,
-      inquiryDate,
-      inquiryGuestCount,
-      inquiryDetails,
-      inquiryNotes
+    const resendResponse = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${context.env.RESEND_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from: "Knead & Nook <onboarding@resend.dev>",
+        to: ["kneadandnook@kneadandnook.com"],
+        reply_to: inquiryEmail,
+        subject: `New Custom Inquiry from ${inquiryName || "Website Form"}`,
+        text: `
+Name: ${inquiryName}
+Email: ${inquiryEmail}
+Phone: ${inquiryPhone}
+Event Type: ${inquiryEventType}
+Date: ${inquiryDate}
+Guest Count: ${inquiryGuestCount}
+
+Details:
+${inquiryDetails}
+
+Notes:
+${inquiryNotes}
+        `.trim()
+      })
     });
+
+    const resendData = await resendResponse.json();
+
+    if (!resendResponse.ok) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: resendData.message || resendData.error || "Email failed to send."
+        }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" }
+        }
+      );
+    }
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: "Custom inquiry received successfully."
+        message: "Custom inquiry sent successfully."
       }),
       {
         headers: { "Content-Type": "application/json" }
