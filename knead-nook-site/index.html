@@ -1211,7 +1211,7 @@
           updateCatalogItems();
           renderCart();
         } catch (error) {
-          statusBox.textContent = 'The order form is ready, but the email endpoint still needs to be connected in Cloudflare Pages. Keep the matching /api/order backend file when you deploy. ' + error.message;
+statusBox.textContent = error.message || 'Something went wrong submitting your order. Please try again.';
         }
       }
 
@@ -1253,7 +1253,7 @@
           customStatusBox.textContent = 'Custom order inquiry sent. Knead & Nook will follow up by email.';
           customInquiryForm.reset();
         } catch (error) {
-          customStatusBox.textContent = 'The custom inquiry form is ready, but the email endpoint still needs to be connected in Cloudflare Pages. Keep the matching /api/custom-inquiry backend file when you deploy. ' + error.message;
+customStatusBox.textContent = error.message || 'Something went wrong sending your inquiry. Please try again.';
         }
       }
 
