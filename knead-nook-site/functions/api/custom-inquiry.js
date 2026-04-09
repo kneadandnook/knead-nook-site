@@ -1,4 +1,4 @@
-export async function onRequestPost(context) {
+nexport async function onRequestPost(context) {
   try {
     const payload = await context.request.json();
 
@@ -18,7 +18,7 @@ export async function onRequestPost(context) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        from: "Knead & Nook <onboarding@resend.dev>",
+        from: "Knead & Nook <kneadandnook@kneadandnook.com>",
         to: ["kneadandnook@kneadandnook.com"],
         reply_to: inquiryEmail,
         subject: `New Custom Inquiry from ${inquiryName || "Website Form"}`,
