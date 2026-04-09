@@ -18,7 +18,7 @@ export async function onRequestPost(context) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        from: "Knead & Nook <orders@kneadandnook.com>",
+        from: "Knead & Nook <kneadandnook@kneadandnook.com>",
         to: ["kneadandnook@kneadandnook.com"],
         reply_to: inquiryEmail,
         subject: `New Custom Inquiry from ${inquiryName || "Website Form"}`,

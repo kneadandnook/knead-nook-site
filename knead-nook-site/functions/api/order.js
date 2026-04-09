@@ -37,7 +37,7 @@ Line Total: ${item.lineTotal || ""}
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        from: "Knead & Nook <orders@kneadandnook.com>",
+        from: "Knead & Nook <kneadandnook@kneadandnook.com>",
         to: ["kneadandnook@kneadandnook.com"],
         reply_to: email,
         subject: `New Order from ${name || "Website Customer"}`,
@@ -50,7 +50,7 @@ Fulfillment Method: ${fulfillmentMethod}
 Requested Date: ${requestedDate}
 Requested Time: ${requestedTime}
 
-Address:
+Delivery Address:
 ${address}
 ${city}, ${state} ${zip}
 
