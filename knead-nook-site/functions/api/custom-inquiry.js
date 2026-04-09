@@ -1,4 +1,4 @@
-nexport async function onRequestPost(context) {
+export async function onRequestPost(context) {
   try {
     const payload = await context.request.json();
 
@@ -18,7 +18,7 @@ nexport async function onRequestPost(context) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        from: "Knead & Nook <kneadandnook@kneadandnook.com>",
+        from: "Knead & Nook <orders@kneadandnook.com>",
         to: ["kneadandnook@kneadandnook.com"],
         reply_to: inquiryEmail,
         subject: `New Custom Inquiry from ${inquiryName || "Website Form"}`,
@@ -42,37 +42,20 @@ ${inquiryNotes}
     const resendData = await resendResponse.json();
 
     if (!resendResponse.ok) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: resendData.message || resendData.error || "Email failed to send."
-        }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json" }
-        }
-      );
+      return new Response(JSON.stringify({
+        success: false,
+        error: resendData.message || resendData.error || "Email failed to send."
+      }), { status: 500 });
     }
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        message: "Custom inquiry sent successfully."
-      }),
-      {
-        headers: { "Content-Type": "application/json" }
-      }
-    );
+    return new Response(JSON.stringify({
+      success: true,
+      message: "Custom inquiry sent successfully."
+    }));
   } catch (error) {
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: error.message || "Custom inquiry submission failed."
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      }
-    );
+    return new Response(JSON.stringify({
+      success: false,
+      error: error.message || "Custom inquiry submission failed."
+    }), { status: 500 });
   }
 }
