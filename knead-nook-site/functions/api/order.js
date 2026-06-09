@@ -21,8 +21,8 @@ export async function onRequestPost(context) {
     const itemLines = items.length
       ? items.map((item, index) => `
 Item ${index + 1}
-Category: ${item.category || ""}
-Item: ${item.item || ""}
+Category: ${item.categoryLabel || item.category || ""}
+Flavor / Item: ${item.name || item.item || ""}
 Size: ${item.size || ""}
 Quantity: ${item.quantity || ""}
 Unit Price: ${item.unitPrice || ""}
