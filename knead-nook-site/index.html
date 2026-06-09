@@ -504,7 +504,6 @@
               </div>
             </div>
             <div class="price-row">
-              <div class="price-item"><strong>Single</strong><span>$4.00</span></div>
               <div class="price-item"><strong>Half dozen</strong><span>$22.00</span></div>
               <div class="price-item"><strong>Dozen</strong><span>$35.00</span></div>
             </div>
@@ -513,6 +512,7 @@
               <div class="chip-list">
                 <span class="chip">Regular Frosted</span><span class="chip">Maple Frosted</span><span class="chip">Chocolate Frosted</span><span class="chip">Cinnamon Toast Crunch</span><span class="chip">Banana</span><span class="chip">Apple Pie</span>
               </div>
+              <p style="margin-top:.65rem;font-size:.88rem;color:rgba(65,49,39,.68);line-height:1.6;">Available in 1/2 dozen or dozen. If you'd like to place a smaller order, please send us an email or message on Facebook and we will let you know if we can accommodate. Thanks for understanding!</p>
             </div>
           </article>
 
@@ -564,6 +564,31 @@
               <p>These are huge, and apple fritters are only available on certain days.</p>
             </div>
           </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block" id="weekend-special">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Limited availability</span>
+          <h2>Our Weekend <em>Special Menu</em></h2>
+          <p>Valid from Friday–Sunday. To place an order including Weekend Special items, please reach out to us via email or Facebook. Available while supplies last.</p>
+        </div>
+        <div style="width:100%;max-width:540px;margin:0 auto;border-radius:var(--radius-xl);overflow:hidden;box-shadow:var(--shadow);background:rgba(255,253,251,.88);border:1px solid rgba(65,49,39,.07);">
+          <img
+            src="assets/images/weekend_menu.jpg"
+            alt="This week's weekend special menu"
+            loading="lazy"
+            style="display:block;width:100%;aspect-ratio:1080/1350;object-fit:cover;"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='grid';"
+          />
+          <div style="display:none;aspect-ratio:1080/1350;align-items:center;justify-content:center;text-align:center;padding:2rem;color:rgba(65,49,39,.45);font-size:.95rem;line-height:1.6;">
+            <div>
+              <div style="font-size:2.5rem;margin-bottom:1rem;">🥐</div>
+              <strong style="display:block;margin-bottom:.4rem;color:var(--cinnamon-sugar);">Weekend menu photo coming soon</strong>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -836,10 +861,10 @@
             <div class="footer-column">
               <h3>Legal</h3>
               <div class="legal-links">
-                <a href="/privacy.html">Privacy Policy</a>
-                <a href="/terms.html">Terms &amp; Conditions</a>
-                <a href="/accessibility.html">Accessibility</a>
-                <a href="/allergens.html">Allergen Notice</a>
+                <a href="#" data-legal-open="privacy-policy">Privacy Policy</a>
+                <a href="#" data-legal-open="terms-conditions">Terms &amp; Conditions</a>
+                <a href="#" data-legal-open="accessibility-notice">Accessibility</a>
+                <a href="#" data-legal-open="allergen-notice">Allergen Notice</a>
               </div>
             </div>
           </div>
@@ -1017,12 +1042,12 @@
         rolls: {
           label: 'Cinnamon Rolls',
           items: [
-            { name: 'Regular Frosted', sizes: { 'Single': 4, 'Half Dozen': 22, 'Dozen': 35 } },
-            { name: 'Maple Frosted', sizes: { 'Single': 4, 'Half Dozen': 22, 'Dozen': 35 } },
-            { name: 'Chocolate Frosted', sizes: { 'Single': 4, 'Half Dozen': 22, 'Dozen': 35 } },
-            { name: 'Cinnamon Toast Crunch', sizes: { 'Single': 4, 'Half Dozen': 22, 'Dozen': 35 } },
-            { name: 'Banana', sizes: { 'Single': 4, 'Half Dozen': 22, 'Dozen': 35 } },
-            { name: 'Apple Pie', sizes: { 'Single': 4, 'Half Dozen': 22, 'Dozen': 35 } }
+            { name: 'Regular Frosted', sizes: { 'Half Dozen': 22, 'Dozen': 35 } },
+            { name: 'Maple Frosted', sizes: { 'Half Dozen': 22, 'Dozen': 35 } },
+            { name: 'Chocolate Frosted', sizes: { 'Half Dozen': 22, 'Dozen': 35 } },
+            { name: 'Cinnamon Toast Crunch', sizes: { 'Half Dozen': 22, 'Dozen': 35 } },
+            { name: 'Banana', sizes: { 'Half Dozen': 22, 'Dozen': 35 } },
+            { name: 'Apple Pie', sizes: { 'Half Dozen': 22, 'Dozen': 35 } }
           ]
         },
         breads: {
@@ -1096,13 +1121,32 @@
         estimatedTotalEl.textContent = formatMoney(subtotal);
       }
 
+      const DONUT_CATEGORIES = ['classic', 'loaded'];
+      const DONUT_SINGLE_SIZES = ['Single'];
+
+      function singleDonutCount() {
+        return cart
+          .filter(item => DONUT_CATEGORIES.includes(item.category) && DONUT_SINGLE_SIZES.includes(item.size))
+          .reduce((sum, item) => sum + item.quantity, 0);
+      }
+
+      function hasAnyDonutSingles() {
+        return cart.some(item => DONUT_CATEGORIES.includes(item.category) && DONUT_SINGLE_SIZES.includes(item.size));
+      }
+
       function renderCart() {
         if (!cart.length) {
           cartList.innerHTML = '<li class="cart-item"><strong>Your cart is empty.</strong><small>Add items from the builder to see them here.</small></li>';
           updateSummary();
           return;
         }
-        cartList.innerHTML = cart.map((item, index) => `
+        const donutWarning = hasAnyDonutSingles() && singleDonutCount() < 6
+          ? `<li class="cart-item" id="donutMinNotice" style="background:rgba(191,125,127,.18);border:1.5px dashed rgba(191,125,127,.5);">
+              <strong style="color:var(--cinnamon-sugar);">Donut minimum not yet met</strong>
+              <small style="display:block;margin-top:.35rem;line-height:1.55;">To prevent excess waste, our minimum order quantity for donuts is 6. If you'd like to place a smaller order, please reach out to us via email or send us a message through Facebook and we'll let you know if we can accommodate. Thanks for your understanding!</small>
+             </li>`
+          : '';
+        cartList.innerHTML = donutWarning + cart.map((item, index) => `
           <li class="cart-item">
             <div class="cart-item-top">
               <div>
@@ -1171,6 +1215,9 @@
         if (!payload.customerName || !payload.customerEmail || !payload.customerPhone) return 'Please fill in your name, email, and phone number.';
         if (!payload.requestedDate || !payload.requestedTime) return 'Please choose the requested date and time.';
         if (!payload.items.length) return 'Add at least one item to the cart before submitting.';
+        if (hasAnyDonutSingles() && singleDonutCount() < 6) {
+          return 'Our minimum order quantity for single donuts is 6. Please add more donuts or remove them and reach out to us for a smaller order.';
+        }
         if (payload.fulfillmentMethod === 'Delivery' && (!payload.deliveryAddress || !payload.deliveryCity || !payload.deliveryZip)) {
           return 'Please complete the delivery address fields.';
         }
@@ -1211,7 +1258,7 @@
           updateCatalogItems();
           renderCart();
         } catch (error) {
-statusBox.textContent = error.message || 'Something went wrong submitting your order. Please try again.';
+          statusBox.textContent = 'The order form is ready, but the email endpoint still needs to be connected in Cloudflare Pages. Keep the matching /api/order backend file when you deploy. ' + error.message;
         }
       }
 
@@ -1253,7 +1300,7 @@ statusBox.textContent = error.message || 'Something went wrong submitting your o
           customStatusBox.textContent = 'Custom order inquiry sent. Knead & Nook will follow up by email.';
           customInquiryForm.reset();
         } catch (error) {
-customStatusBox.textContent = error.message || 'Something went wrong sending your inquiry. Please try again.';
+          customStatusBox.textContent = 'The custom inquiry form is ready, but the email endpoint still needs to be connected in Cloudflare Pages. Keep the matching /api/custom-inquiry backend file when you deploy. ' + error.message;
         }
       }
 
