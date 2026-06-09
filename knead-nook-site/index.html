@@ -163,6 +163,8 @@
     .flavor-grid h4,.menu-note h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.13em;color:var(--baked-donut)}
     .chip-list{display:flex;flex-wrap:wrap;gap:.5rem}
     .chip{display:inline-flex;align-items:center;border-radius:999px;padding:.45rem .9rem;background:var(--vanilla-icing);font-size:.9rem;font-weight:500;color:var(--cinnamon-sugar)}
+    .chip.sold-out{background:rgba(65,49,39,.07);color:rgba(65,49,39,.35);text-decoration:line-through;position:relative;}
+    .chip.sold-out::after{content:'sold out';display:inline-block;margin-left:.5rem;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(191,125,127,.7);text-decoration:none;}
     .menu-note{background:linear-gradient(135deg,rgba(122,90,59,.08),rgba(165,129,106,.08));border:1.5px dashed rgba(122,90,59,.22);border-radius:var(--radius-md);padding:1.25rem 1.4rem}
     .menu-note p{margin-top:.6rem;font-size:.95rem;color:rgba(65,49,39,.75)}
 
@@ -463,7 +465,7 @@
             <div class="flavor-grid">
               <h4>Flavors</h4>
               <div class="chip-list">
-                <span class="chip">Chocolate Frosted</span><span class="chip">Strawberry Frosted</span><span class="chip">Maple Frosted</span><span class="chip">Cinnamon Sugar</span><span class="chip">Powdered Sugar</span><span class="chip">Glazed</span><span class="chip">Coffee Glazed</span>
+                <span class="chip" data-item-key="classic|Chocolate Frosted">Chocolate Frosted</span><span class="chip" data-item-key="classic|Strawberry Frosted">Strawberry Frosted</span><span class="chip" data-item-key="classic|Maple Frosted">Maple Frosted</span><span class="chip" data-item-key="classic|Cinnamon Sugar">Cinnamon Sugar</span><span class="chip" data-item-key="classic|Powdered Sugar">Powdered Sugar</span><span class="chip" data-item-key="classic|Glazed">Glazed</span><span class="chip" data-item-key="classic|Coffee Glazed">Coffee Glazed</span>
               </div>
             </div>
           </article>
@@ -487,7 +489,7 @@
             <div class="flavor-grid">
               <h4>Fillings</h4>
               <div class="chip-list">
-                <span class="chip">Lemon</span><span class="chip">Strawberry</span><span class="chip">Key Lime</span><span class="chip">Raspberry</span><span class="chip">Blueberry</span><span class="chip">Apple Pie</span><span class="chip">Cheesecake</span><span class="chip">Bavarian Cream</span>
+                <span class="chip" data-item-key="loaded|Lemon">Lemon</span><span class="chip" data-item-key="loaded|Strawberry">Strawberry</span><span class="chip" data-item-key="loaded|Key Lime">Key Lime</span><span class="chip" data-item-key="loaded|Raspberry">Raspberry</span><span class="chip" data-item-key="loaded|Blueberry">Blueberry</span><span class="chip" data-item-key="loaded|Apple Pie">Apple Pie</span><span class="chip" data-item-key="loaded|Cheesecake">Cheesecake</span><span class="chip" data-item-key="loaded|Bavarian Cream">Bavarian Cream</span>
               </div>
             </div>
           </article>
@@ -510,7 +512,7 @@
             <div class="flavor-grid">
               <h4>Flavors</h4>
               <div class="chip-list">
-                <span class="chip">Regular Frosted</span><span class="chip">Maple Frosted</span><span class="chip">Chocolate Frosted</span><span class="chip">Cinnamon Toast Crunch</span><span class="chip">Banana</span><span class="chip">Apple Pie</span>
+                <span class="chip" data-item-key="rolls|Regular Frosted">Regular Frosted</span><span class="chip" data-item-key="rolls|Maple Frosted">Maple Frosted</span><span class="chip" data-item-key="rolls|Chocolate Frosted">Chocolate Frosted</span><span class="chip" data-item-key="rolls|Cinnamon Toast Crunch">Cinnamon Toast Crunch</span><span class="chip" data-item-key="rolls|Banana">Banana</span><span class="chip" data-item-key="rolls|Apple Pie">Apple Pie</span>
               </div>
               <p style="margin-top:.65rem;font-size:.88rem;color:rgba(65,49,39,.68);line-height:1.6;">Available in 1/2 dozen or dozen. If you'd like to place a smaller order, please send us an email or message on Facebook and we will let you know if we can accommodate. Thanks for understanding!</p>
             </div>
@@ -540,7 +542,7 @@
             <div class="flavor-grid">
               <h4>Choices</h4>
               <div class="chip-list">
-                <span class="chip">Banana Bread</span><span class="chip">Zucchini Bread</span><span class="chip">Apple Cinnamon Bread</span><span class="chip">Banana Muffins</span><span class="chip">Blueberry Muffins</span><span class="chip">Apple Cinnamon Muffins</span>
+                <span class="chip" data-item-key="breads|Banana Bread">Banana Bread</span><span class="chip" data-item-key="breads|Zucchini Bread">Zucchini Bread</span><span class="chip" data-item-key="breads|Apple Cinnamon Bread">Apple Cinnamon Bread</span><span class="chip" data-item-key="breads|Banana Muffins">Banana Muffins</span><span class="chip" data-item-key="breads|Blueberry Muffins">Blueberry Muffins</span><span class="chip" data-item-key="breads|Apple Cinnamon Muffins">Apple Cinnamon Muffins</span>
               </div>
             </div>
           </article>
@@ -587,6 +589,7 @@
             <div>
               <div style="font-size:2.5rem;margin-bottom:1rem;">🥐</div>
               <strong style="display:block;margin-bottom:.4rem;color:var(--cinnamon-sugar);">Weekend menu photo coming soon</strong>
+              Upload <code>assets/images/weekend_menu.jpg</code> to show this week's specials here.
             </div>
           </div>
         </div>
@@ -1099,14 +1102,25 @@
       }
 
       function updateCatalogItems() {
-        const category = catalog[catalogCategory.value];
-        catalogItem.innerHTML = category.items.map((item, index) => `<option value="${index}">${item.name}</option>`).join('');
+        const catKey = catalogCategory.value;
+        const category = catalog[catKey];
+        const availableItems = category.items.filter(item => isInStock(catKey, item.name));
+        if (availableItems.length === 0) {
+          catalogItem.innerHTML = '<option value="">— All sold out —</option>';
+          catalogSize.innerHTML = '<option value="">—</option>';
+          return;
+        }
+        catalogItem.innerHTML = availableItems.map((item, index) => `<option value="${index}">${item.name}</option>`).join('');
         updateCatalogSizes();
       }
 
       function updateCatalogSizes() {
-        const category = catalog[catalogCategory.value];
-        const item = category.items[Number(catalogItem.value) || 0];
+        const catKey = catalogCategory.value;
+        const category = catalog[catKey];
+        const availableItems = category.items.filter(item => isInStock(catKey, item.name));
+        if (!availableItems.length) return;
+        const item = availableItems[Number(catalogItem.value) || 0];
+        if (!item) return;
         const sizes = Object.entries(item.sizes);
         catalogSize.innerHTML = sizes.map(([size, price]) => `<option value="${size}">${size} · ${formatMoney(price)}</option>`).join('');
       }
@@ -1169,13 +1183,16 @@
       }
 
       function addCurrentItem() {
-        const category = catalog[catalogCategory.value];
-        const item = category.items[Number(catalogItem.value) || 0];
+        const catKey = catalogCategory.value;
+        const category = catalog[catKey];
+        const availableItems = category.items.filter(item => isInStock(catKey, item.name));
+        const item = availableItems[Number(catalogItem.value) || 0];
+        if (!item) { statusBox.textContent = 'No item selected.'; return; }
         const size = catalogSize.value;
         const quantity = Math.max(1, Number(catalogQuantity.value) || 1);
         const unitPrice = Number(item.sizes[size]);
         cart.push({
-          category: catalogCategory.value,
+          category: catKey,
           categoryLabel: category.label,
           name: item.name,
           size,
@@ -1329,6 +1346,71 @@
       if (yearEl) yearEl.textContent = new Date().getFullYear();
       renderReviews();
 
+      // ─────────────────────────────────────────────────────────────────
+      // STOCK MANAGEMENT — Google Sheets integration
+      // ─────────────────────────────────────────────────────────────────
+      // HOW TO SET UP:
+      //   1. Make a copy of the Knead & Nook stock sheet in Google Sheets.
+      //   2. File → Share → Publish to web → choose "Sheet1" and "CSV" → Publish.
+      //   3. Copy the URL it gives you and paste it below, replacing the placeholder.
+      //   4. Save and redeploy. The site will now read stock from the sheet on every page load.
+      //
+      // HOW TO MARK ITEMS OUT OF STOCK:
+      //   Open the Google Sheet and change the value in the "In Stock" column
+      //   from TRUE to FALSE for any item. Save. The site updates within seconds.
+      //
+      // SHEET COLUMNS (Row 1 is a header row the site skips):
+      //   A: Category Key   (e.g.  classic, loaded, rolls, breads, fritters)
+      //   B: Item Name      (must match exactly, e.g.  Chocolate Frosted)
+      //   C: In Stock       (TRUE or FALSE)
+      // ─────────────────────────────────────────────────────────────────
+      const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQtJSTG8MymiIgNQ23vSdVh1sr_qtujOqNjrHXuP5Xm4YMAMQN9mBlVDIMny1NtNthmuHcQNWnwoFNk/pub?gid=0&single=true&output=csv';
+
+      let stockStatus = {}; // populated by fetchStockStatus(); key = "category|Item Name"
+
+      async function fetchStockStatus() {
+        if (!SHEET_CSV_URL || SHEET_CSV_URL.startsWith('PASTE_')) return;
+        try {
+          const res = await fetch(SHEET_CSV_URL);
+          if (!res.ok) return;
+          const text = await res.text();
+          const lines = text.trim().split('\n').slice(1); // skip header row
+          lines.forEach(line => {
+            // Handle CSV values that may be quoted
+            const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+            if (cols.length < 3) return;
+            const [cat, name, inStock] = cols;
+            stockStatus[`${cat}|${name}`] = inStock.toUpperCase() !== 'FALSE';
+          });
+        } catch (e) {
+          // Silently fail — site works normally if sheet is unreachable
+        }
+      }
+
+      function isInStock(categoryKey, itemName) {
+        const key = `${categoryKey}|${itemName}`;
+        // If we have no data at all, treat everything as in stock
+        if (Object.keys(stockStatus).length === 0) return true;
+        // If this specific key isn't in the sheet, treat as in stock
+        if (!(key in stockStatus)) return true;
+        return stockStatus[key];
+      }
+
+      function applyStockStatus() {
+        // Update menu card chips
+        document.querySelectorAll('.chip[data-item-key]').forEach(chip => {
+          const key = chip.dataset.itemKey;
+          const [cat, name] = key.split('|');
+          if (!isInStock(cat, name)) {
+            chip.classList.add('sold-out');
+          } else {
+            chip.classList.remove('sold-out');
+          }
+        });
+        // Re-render the order form dropdowns so sold-out items are removed
+        updateCatalogItems();
+      }
+
       fulfillmentMethod.addEventListener('change', syncDeliveryFields);
       catalogCategory.addEventListener('change', updateCatalogItems);
       catalogItem.addEventListener('change', updateCatalogSizes);
@@ -1342,8 +1424,14 @@
       customInquiryForm.addEventListener('submit', submitCustomInquiry);
 
       syncDeliveryFields();
-      updateCatalogItems();
       renderCart();
+
+      // Fetch stock, then build the catalog dropdowns with live stock data
+      fetchStockStatus().then(() => {
+        updateCatalogItems();
+        applyStockStatus();
+      });
+
     })();
   </script>
 
